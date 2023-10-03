@@ -34,14 +34,16 @@ downloads_dir = os.path.abspath("downloads")
 #     remove_watermark("downloads/caucasian-bearded-viking-man-in-the-dunes-at-daytime.jpg","output.jpg")
 
 
+# Import necessary libraries
+
 # Create a Selenium driver
 driver = webdriver.Chrome()
 
 # Navigate to the Getty Images website
 driver.get("https://www.gettyimages.fi/detail/valokuva/portrait-of-a-russian-viking-warrior-queen-rojaltivapaa-kuva/1298675057?adppopup=true")
 
-# Find the image you want to download
-image = driver.find_element_by_xpath("//img[@alt='A cat sitting in a tree']")
+# Find the image you want to download using a CSS selector
+image = driver.find_element_by_css_selector(".asset-container img")
 
 # Get the image URL
 image_url = image.get_attribute("src")
@@ -49,8 +51,8 @@ image_url = image.get_attribute("src")
 # Download the image
 image_data = requests.get(image_url).content
 
-# Save the image to a file
-with open("cat.jpg", "wb") as f:
+# Save the image to a file with an appropriate name (e.g., 'warrior_queen.jpg')
+with open("warrior_queen.jpg", "wb") as f:
     f.write(image_data)
 
 # Close the Selenium driver
