@@ -1,8 +1,35 @@
 import requests
 import os
 import logging
+import cv2
 from urllib.parse import urlparse
 import watermark_remover_cli
+import urllib.parse
+from PIL import Image
+
+def remove_watermark(input_image_path, output_image_path):
+    image = Image.open(input_image_path)
+    # define the region of the watermark
+    coords = "2046,988,1225,982"
+    coords_list = coords.split(",")
+    coords_int = [int(coord) for coord in coords_list]
+    watermark_region = tuple(coords_int)
+    # create a new image without the watermark
+    image_without_watermark = image.crop(watermark_region)
+    # save the new image
+    image_without_watermark.save(output_image_path)
+
+def detect_edges(image_path):
+    # read the image
+    image = cv2.imread(image_path)
+    # convert the image to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # apply Gaussian blur to reduce noise
+    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+    # detect edges using the Canny algorithm
+    edges = cv2.Canny(blurred, 50, 150)
+    # return the edges
+    return edges
 
 # function to download the file based on the specified URL
 def download_file(url, file_path):
@@ -28,15 +55,11 @@ def convert_url(url):
 def remove_watermark(input_image_file_path, output_image_file_path):
     # Create an instance of the watermark remover tool
     watermark_remover = watermark_remover_cli.WatermarkRemover()
-
     # Set the input image file path
     watermark_remover.set_input_image_file_path(input_image_file_path)
-
     # Set the output image file path
     watermark_remover.set_output_image_file_path(output_image_file_path)
-
     # Remove the watermark
     watermark_remover.remove_watermark()
-
     # Save the output image file
     watermark_remover.save_output_image_file()

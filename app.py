@@ -6,54 +6,52 @@ import os
 import json
 import requests
 from urllib.parse import urlparse
-import urllib.parse
 from selenium import webdriver
+from PIL import Image
 
 logging.basicConfig(level=logging.INFO)
 sys.path.append("/src")
 # download the image based on specified link
 from src.functions import download_file, remove_watermark
 
-downloads_dir = os.path.abspath("downloads")
+import cv2
+import matplotlib.pyplot as plt
 
-# if __name__ == "__main__":
-#     # Get the absolute path of the downloads directory.
-#     downloads_dir = os.path.abspath("downloads")
-#     # Create the downloads directory if it doesn't exist.
-#     os.makedirs(downloads_dir, exist_ok=True)
-#     # Get the URL from the command line arguments.
-#     url = "https://media.gettyimages.com/id/696311622/photo/caucasian-bearded-viking-man-in-the-dunes-at-daytime.jpg?s=2048x2048&w=gi&k=20&c=sDMXntQ-Wx9OyQnu0kP13k9fvvjnRGohXOM4HTHfXcM="
-#     # Download the file.
-#     success = download_file(url, os.path.join(downloads_dir, os.path.basename(urlparse(url).path)))
-#     if success:
-#         logging.info(f"File downloaded successfully: {downloads_dir}")
-#     else:
-#         logging.error(f"Failed to download file: {url}")
+def remove_watermark(image):
+  """Removes a watermark from an image.
 
-#     # watermark removal
-#     remove_watermark("downloads/caucasian-bearded-viking-man-in-the-dunes-at-daytime.jpg","output.jpg")
+  Args:
+    image: The image with the watermark.
+
+  Returns:
+    The image without the watermark.
+  """
+
+  # Select the watermark area in the image.
+  watermark_mask = cv2.selectROI("Image with watermark", image)
+
+  # Inpaint the watermark area.
+  inpainted_image = cv2.inpaint(image, watermark_mask, 3, cv2.INPAINT_NS)
+
+  return inpainted_image
+
+# Load the image with the watermark.
+image = cv2.imread("image_with_watermark.jpg")
+
+# Remove the watermark from the image.
+inpainted_image = remove_watermark(image)
+
+# Save the image without the watermark.
+cv2.imwrite("image_without_watermark.jpg", inpainted_image)
 
 
-# Import necessary libraries
+if __name__ == "__main__":
+    # Get the absolute path of the downloads directory.
+    # Create the downloads directory if it doesn't exist.
+    downloads_dir = os.path.abspath("downloads")
 
-# Create a Selenium driver
-driver = webdriver.Chrome()
+    os.makedirs(downloads_dir, exist_ok=True)
+    # Get the URL from the command line arguments.
 
-# Navigate to the Getty Images website
-driver.get("https://www.gettyimages.fi/detail/valokuva/portrait-of-a-russian-viking-warrior-queen-rojaltivapaa-kuva/1298675057?adppopup=true")
-
-# Find the image you want to download using a CSS selector
-image = driver.find_element_by_css_selector(".asset-container img")
-
-# Get the image URL
-image_url = image.get_attribute("src")
-
-# Download the image
-image_data = requests.get(image_url).content
-
-# Save the image to a file with an appropriate name (e.g., 'warrior_queen.jpg')
-with open("warrior_queen.jpg", "wb") as f:
-    f.write(image_data)
-
-# Close the Selenium driver
-driver.quit()
+    extract_texture_features("downloads/viking-warrior-king-in-a-forest.jpg", "downloads/output2.png")
+    
